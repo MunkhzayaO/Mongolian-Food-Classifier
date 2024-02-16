@@ -34,8 +34,9 @@ def main():
             get_items=get_image_files,
             splitter=RandomSplitter(valid_pct=0.2, seed=42), 
             get_y=parent_label,
-            item_tfms=Resize(128))
+            item_tfms=RandomResizedCrop(224, min_scale=0.5) 
 
+        )  
         # Create DataLoader
         path = Path('food')
         dls = foods.dataloaders(path)
