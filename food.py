@@ -30,12 +30,13 @@ def main():
 
         # Create DataBlock for image classification
         foods = DataBlock(
-            blocks=(ImageBlock, CategoryBlock), 
+            blocks=(ImageBlock, CategoryBlock),
             get_items=get_image_files,
-            splitter=RandomSplitter(valid_pct=0.2, seed=42), 
+            splitter=RandomSplitter(valid_pct=0.2, seed=42),
             get_y=parent_label,
-            item_tfms=RandomResizedCrop(224, min_scale=0.5)  
-        )  
+            item_tfms=Resize(224),  # Resizing images to a fixed size
+            batch_tfms=aug_transforms()  # Applying augmentation transforms during training
+        )
 
         # Create DataLoader
         path = Path('food')
