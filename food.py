@@ -29,14 +29,12 @@ def main():
         st.image(image, caption='Uploaded Image.', use_column_width=True)
 
         # Create DataBlock for image classification
-        foods = DataBlock(
-            blocks=(ImageBlock, CategoryBlock),
-            get_items=get_image_files,
-            splitter=RandomSplitter(valid_pct=0.2, seed=42),
-            get_y=parent_label,
-            item_tfms=Resize(224),  # Resizing images to a fixed size
-            batch_tfms=aug_transforms()  # Applying augmentation transforms during training
-        )
+        foods = DataBlock(blocks=(ImageBlock, CategoryBlock),
+                          get_items=get_image_files,
+                          splitter=RandomSplitter(valid_pct=0.2, seed=42),
+                          get_y=parent_label,
+                          item_tfms=Resize(224),
+                          batch_tfms=aug_transforms())
 
         # Create DataLoader
         path = Path('food')
