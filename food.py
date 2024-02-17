@@ -1,19 +1,5 @@
 import streamlit as st
 from fastai.vision.all import *
-from duckduckgo_search import DDGS
-
-# Define functions for image search and downloading
-def search_images(term, max_images=30):
-    print(f"Searching for '{term}'")
-    with DDGS() as ddgs:
-        search_results = ddgs.images(keywords=term)
-        image_urls = [next(search_results).get("image") for _ in range(max_images)]
-        return L(image_urls)
-
-def download_images(path, urls):
-    path.mkdir(exist_ok=True)
-    for i, url in enumerate(urls):
-        download_url(url, path/f"image_{i}.jpg")
 
 # Define the Streamlit app
 def main():
@@ -28,20 +14,15 @@ def main():
         image = PILImage.create(uploaded_file)
         st.image(image, caption='Uploaded Image.', use_column_width=True)
 
-        # Create DataBlock for image classification
-        foods = DataBlock(blocks=(ImageBlock, CategoryBlock),
-                          get_items=get_image_files,
-                          splitter=RandomSplitter(valid_pct=0.2, seed=42),
-                          get_y=parent_label,
-                          item_tfms=Resize(224),
-                          batch_tfms=aug_transforms())
-
-        # Create DataLoader
+        # Load data
         path = Path('food')
-        dls = foods.dataloaders(path)
+        dls = ImageDataLoaders.from_name_func(
+            path, get_image_files(path), valid_pct=0.2,
+            label_func=lambda x: x.parent.name, item_tfms=Resize(224))
 
-        # Load trained model
-        learn = cnn_learner(dls, resnet18)
+        # Train model
+        learn = cnn_learner(dls, resnet18, metrics=accuracy)
+        learn.fine_tune(1)
 
         # Classify image
         pred, pred_idx, probs = learn.predict(image)
