@@ -19,6 +19,10 @@ def main():
             path = Path('food')
             fnames = get_image_files(path)
             labels = fnames.map(lambda x: x.parent.name)
+
+            # Print the contents of fnames for debugging
+            print("File names:", fnames)
+
             dls = ImageDataLoaders.from_lists(path, fnames, labels=labels, item_tfms=Resize(224))
 
             # Train model
