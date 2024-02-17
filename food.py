@@ -14,19 +14,23 @@ def main():
         image = PILImage.create(uploaded_file)
         st.image(image, caption='Uploaded Image.', use_column_width=True)
 
-        # Load data
-        path = Path('food')
-        dls = ImageDataLoaders.from_name_func(
-            path, get_image_files(path), valid_pct=0.2,
-            label_func=lambda x: x.parent.name, item_tfms=Resize(224))
+        try:
+            # Load data
+            path = Path('food')
+            fnames = get_image_files(path)
+            labels = fnames.map(lambda x: x.parent.name)
+            dls = ImageDataLoaders.from_lists(path, fnames, labels=labels, item_tfms=Resize(224))
 
-        # Train model
-        learn = cnn_learner(dls, resnet18, metrics=accuracy)
-        learn.fine_tune(1)
+            # Train model
+            learn = cnn_learner(dls, resnet18, metrics=accuracy)
+            learn.fine_tune(1)
 
-        # Classify image
-        pred, pred_idx, probs = learn.predict(image)
-        st.write(f"Prediction: {pred}; Probability: {probs[pred_idx]:.4f}")
+            # Classify image
+            pred, pred_idx, probs = learn.predict(image)
+            st.write(f"Prediction: {pred}; Probability: {probs[pred_idx]:.4f}")
+
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
 
 # Run the Streamlit app
 if __name__ == '__main__':
