@@ -2,7 +2,7 @@ import streamlit as st
 from fastai.vision.all import *
 import gdown
 
-st.markdown("""# Mongolia has four traditional herd animals: Buuz, Huushuur, Niislel Salad, Tsuivan. 
+st.markdown("""# Mongolia has four traditional foods: Buuz, Huushuur, Niislel Salad, Tsuivan. 
 This app allows you to upload an image of one of these four foods and the connected model will classify it for you.""")
 
 st.markdown("""### Upload your image here""")
