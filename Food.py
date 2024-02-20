@@ -1,54 +1,36 @@
 import streamlit as st
 from fastai.vision.all import *
-from duckduckgo_search import DDGS
+import gdown
 
-# Define functions for image search and downloading
-def search_images(term, max_images=30):
-    print(f"Searching for '{term}'")
-    with DDGS() as ddgs:
-        search_results = ddgs.images(keywords=term)
-        image_urls = [next(search_results).get("image") for _ in range(max_images)]
-        return L(image_urls)
+st.markdown("""# Mongolian Five Animal Classifier
 
-def download_images(path, urls):
-    path.mkdir(exist_ok=True)
-    for i, url in enumerate(urls):
-        download_url(url, path/f"image_{i}.jpg")
+Mongolia has five traditional herd animals: Horses, Cattle, Sheep, Goats, and Camels. This app allows you to upload an image of one of these five animals and the connected model will classify it for you. Upload an image and try it out!
 
-# Define the Streamlit app
-def main():
-    st.title("Mongolian Food Image Classifier")
-    st.header("Upload an image of Mongolian food to classify")
+This app was created as a demo for the Deep Learning course at LETU Mongolia American University.""")
 
-    # Upload image
-    uploaded_file = st.file_uploader("Choose an image...", type="jpg")
+st.markdown("""### Upload your image here""")
 
-    # Display uploaded image and make predictions
-    if uploaded_file is not None:
-        image = PILImage.create(uploaded_file)
-        st.image(image, caption='Uploaded Image.', use_column_width=True)
+image_file = st.file_uploader("Image Uploader", type=["png","jpg","jpeg"])
 
-        # Create DataBlock for image classification
-        foods = DataBlock(
-            blocks=(ImageBlock, CategoryBlock), 
-            get_items=get_image_files,
-            splitter=RandomSplitter(valid_pct=0.2, seed=42), 
-            get_y=parent_label,
-            item_tfms=RandomResizedCrop(224, min_scale=0.5)  
+## Model Loading Section
+model_path = Path("export.pkl")
 
-        ) 
+if not model_path.exists():
+    with st.spinner("Downloading model... this may take awhile! \n Don't stop it!"):
+        url = 'https://colab.research.google.com/uc?id=1ZGPfy9RvyzDyf_U9bnTbreNXEx0pvFCf'
+        output = 'export.pkl'
+        gdown.download(url, output, quiet=False)
+    learn_inf = load_learner('export.pkl')
+else:
+    learn_inf = load_learner('export.pkl')
 
-        # Create DataLoader
-        path = Path('food')
-        dls = foods.dataloaders(path)
+col1, col2 = st.columns(2)
+if image_file is not None:
+    img = PILImage.create(image_file)
+    pred, pred_idx, probs = learn_inf.predict(img)
 
-        # Load trained model
-        learn = cnn_learner(dls, resnet18)
-
-        # Classify image
-        pred, pred_idx, probs = learn.predict(image)
-        st.write(f"Prediction: {pred}; Probability: {probs[pred_idx]:.4f}")
-
-# Run the Streamlit app
-if __name__ == '__main__':
-    main()
+    with col1:
+        st.markdown(f"""### Predicted animal: {pred.capitalize()}""")
+        st.markdown(f"""### Probability: {round(max(probs.tolist()), 3) * 100}%""")
+    with col2:
+        st.image(img, width=300)
