@@ -2,11 +2,8 @@ import streamlit as st
 from fastai.vision.all import *
 import gdown
 
-st.markdown("""# Mongolian Five Animal Classifier
-
-Mongolia has five traditional herd animals: Horses, Cattle, Sheep, Goats, and Camels. This app allows you to upload an image of one of these five animals and the connected model will classify it for you. Upload an image and try it out!
-
-This app was created as a demo for the Deep Learning course at LETU Mongolia American University.""")
+st.markdown("""# Mongolia has four traditional herd animals: Buuz, Huushuur, Niislel Salad, Tsuivan. 
+This app allows you to upload an image of one of these four foods and the connected model will classify it for you.""")
 
 st.markdown("""### Upload your image here""")
 
